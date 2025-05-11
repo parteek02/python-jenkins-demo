@@ -8,21 +8,21 @@ pipeline {
     stages {
         stage('Setup') {
             steps {
-                sh 'python3 -m venv $VENV_DIR'
-                sh './$VENV_DIR/bin/pip install --upgrade pip'
-                sh './$VENV_DIR/bin/pip install -r requirements-dev.txt'
+                sh "python3 -m venv $VENV_DIR"
+                sh "./$VENV_DIR/bin/pip install --upgrade pip"
+                sh "./$VENV_DIR/bin/pip install -r requirements-dev.txt"
             }
         }
 
         stage('Lint') {
             steps {
-                sh './$VENV_DIR/bin/flake8 app tests'
+                sh "./$VENV_DIR/bin/flake8 app tests"
             }
         }
 
         stage('Security Scan') {
             steps {
-                sh './$VENV_DIR/bin/bandit -r app'
+                sh "./$VENV_DIR/bin/bandit -r app"
             }
         }
 
@@ -40,8 +40,12 @@ pipeline {
                 expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
             }
             steps {
-                echo 'Deploying...'
-                sh 'echo "Deployment complete"'
+                echo 'Deploying app...'
+                sh '''
+                    echo "Running deployed application logic..."
+                    ./venv/bin/python3 -c "from app import calculator; print('3 + 2 =', calculator.add(3, 2))"
+                '''
+                echo 'Deployment complete.'
             }
         }
     }
