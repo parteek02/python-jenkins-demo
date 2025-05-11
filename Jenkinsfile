@@ -8,27 +8,30 @@ pipeline {
     stages {
         stage('Setup') {
             steps {
-                sh 'python3 -m venv ${VENV_DIR}'
-                sh './${VENV_DIR}/bin/pip install --upgrade pip'
-                sh './${VENV_DIR}/bin/pip install -r requirements-dev.txt'
+                sh 'python3 -m venv $VENV_DIR'
+                sh './$VENV_DIR/bin/pip install --upgrade pip'
+                sh './$VENV_DIR/bin/pip install -r requirements-dev.txt'
             }
         }
 
         stage('Lint') {
             steps {
-                sh './${VENV_DIR}/bin/flake8 app tests'
+                sh './$VENV_DIR/bin/flake8 app tests'
             }
         }
 
         stage('Security Scan') {
             steps {
-                sh './${VENV_DIR}/bin/bandit -r app'
+                sh './$VENV_DIR/bin/bandit -r app'
             }
         }
 
         stage('Test & Coverage') {
             steps {
-                sh './${VENV_DIR}/bin/pytest --cov=app --cov-report=xml'
+                sh '''
+                    export PYTHONPATH=.
+                    ./venv/bin/pytest --cov=app --cov-report=xml
+                '''
             }
         }
 
