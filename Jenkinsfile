@@ -5,10 +5,6 @@ pipeline {
         VENV_DIR = 'venv'
     }
 
-    tools {
-        python 'Python3'
-    }
-
     stages {
         stage('Setup') {
             steps {
@@ -24,13 +20,13 @@ pipeline {
             }
         }
 
-        stage('Static Analysis') {
+        stage('Security Scan') {
             steps {
                 sh './${VENV_DIR}/bin/bandit -r app'
             }
         }
 
-        stage('Test') {
+        stage('Test & Coverage') {
             steps {
                 sh './${VENV_DIR}/bin/pytest --cov=app --cov-report=xml'
             }
@@ -41,24 +37,22 @@ pipeline {
                 expression { currentBuild.result == null || currentBuild.result == 'SUCCESS' }
             }
             steps {
-                echo 'Deploying app...'
-                // Simulate deployment
-                sh 'echo "Deployment complete."'
+                echo 'Deploying...'
+                sh 'echo "Deployment complete"'
             }
         }
     }
 
     post {
         success {
-            mail to: 'parteek.sandhey@opstree.com',
-                 subject: "SUCCESS: Jenkins Job ${env.JOB_NAME}",
-                 body: "Job ${env.JOB_NAME} succeeded at ${env.BUILD_URL}"
+            mail to: 'parteeksandhey857@gmail.com',
+                 subject: "SUCCESS: ${env.JOB_NAME}",
+                 body: "Build succeeded: ${env.BUILD_URL}"
         }
-
         failure {
-            mail to: 'parteek.sandhey@opstree.com',
-                 subject: "FAILURE: Jenkins Job ${env.JOB_NAME}",
-                 body: "Job ${env.JOB_NAME} failed at ${env.BUILD_URL}"
+            mail to: 'parteeksandhey857@gmail.com',
+                 subject: "FAILURE: ${env.JOB_NAME}",
+                 body: "Build failed: ${env.BUILD_URL}"
         }
     }
 }
